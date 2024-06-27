@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@pixi/layout": "^2.0.1",
     "animejs": "^3.2.2",
     "eventemitter3": "^5.0.1",
     "pixi-viewport": "^5.0.3",

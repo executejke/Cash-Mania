@@ -1,5 +1,3 @@
-// Generated using webpack-cli https://github.com/webpack/webpack-cli
-
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
@@ -16,7 +14,8 @@ const config = {
   },
   devServer: {
     open: true,
-    host: "localhost",
+    host: "0.0.0.0",
+    watchFiles: ["src/**/*.json"],
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -26,6 +25,7 @@ const config = {
       patterns: [
         { from: "src/assets", to: "assets" },
         { from: "src/style.css", to: "style.css" },
+        { from: "src/localization.json", to: "localization.json" },
       ],
     }),
   ],
@@ -54,9 +54,9 @@ const config = {
         test: /\.(svg|png|jpg|gif)$/i,
         use: [
           {
-            loader: "url-loader",
+            loader: "file-loader",
             options: {
-              limit: 8192, // файлы меньше 8KB будут инлайниться в base64
+              name: "assets/img/[name].[ext]", // Копируем изображения в папку assets/img внутри dist
             },
           },
         ],

@@ -1,11 +1,11 @@
 import { Container, Sprite } from "pixi.js";
 
 export function createElements(worldWidth, worldHeight) {
-  const rowCount = 3; // Количество элементов в ряду
-  const startX = 65; // Начальный отступ по X для первого элемента
-  const offsetsX = [0, 85, 185]; // Отступы для каждого элемента в ряду
-  const offsetY = 188; // Начальный отступ по Y
-  const rowHeight = 120; // Высота каждого ряда
+  const rowCount = 3;
+  const startX = 65;
+  const offsetsX = [0, 85, 185];
+  const offsetY = 188;
+  const rowHeight = 120;
   const container = new Container();
   const elements = [
     "elem1",
@@ -29,12 +29,5 @@ export function createElements(worldWidth, worldHeight) {
 
     container.addChild(sprite);
   });
-  //   const sprite = Sprite.from("elem1");
-  //   sprite.anchor.set(0.5, 0);
-  //   sprite.x = 65 + 42.5;
-  //   sprite.y = 188;
-  //   console.log(sprite.height);
-  //   console.log(worldWidth);
-  //   sprite.zIndex = 0;
   return container;
 }

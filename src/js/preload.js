@@ -1,19 +1,18 @@
 import "../style.css";
 import { Assets } from "pixi.js";
-import bg from "../assets/img/BG.png";
+
 import logo from "../assets/img/logo.png";
 import rectangle from "../assets/img/rectangle.png";
 import rectangleTryNow from "../assets/img/rectangleTryNow.png";
 import lightTop from "../assets/img/light 1.png";
 import lightBottom from "../assets/img/light 2.png";
-import button from "../assets/img/button.png";
+
 import buttonOff from "../assets/img/buttonOff.png";
 import button1 from "../assets/img/button1.png";
 import lightTryNowTop from "../assets/img/lightTryNowTop.png";
 import lightTryNowBottom from "../assets/img/lightTryNowBottom.png";
-import cash from "../assets/img/cash.png";
-import texture from "../assets/img/texture.png";
-import divides from "../assets/img/divides.png";
+
+import divideGPT from "../assets/img/divideGPT.png";
 import rectangleBlurTop from "../assets/img/rectangleBlurTop.png";
 import rectangleBlurBottom from "../assets/img/rectangleBlurBottom.png";
 import elem1 from "../assets/img/elem 1.png";
@@ -34,34 +33,35 @@ import elem15 from "../assets/img/elem 15.png";
 import elemWin from "../assets/img/elemWin.png";
 import elemWin2 from "../assets/img/elemWin2.png";
 import banknote from "../assets/img/banknote.png";
-import banknoteCash from "../assets/img/banknoteCash.png";
+import banknoteX from "../assets/img/banknoteX.png";
+import character from "../assets/img/character.png";
+
 import particlesBottom from "../assets/img/particlesBottom.png";
 import particlesCenter from "../assets/img/particlesCenter.png";
+import particles from "../assets/img/particles.png";
 import boom from "../assets/img/boom.png";
 import blur from "../assets/img/blue.png";
 import popupRectangle from "../assets/img/popupRectangle.png";
 import popupButton from "../assets/img/popupButton.png";
 import popupCTAButton from "../assets/img/popupCTAButton.png";
 import popupBoom from "../assets/img/popupBoomUnderButton.png";
+import stars from "../assets/img/stars.png";
+import bg1 from "../assets/img/bg1.png";
 import komika from "../assets/fonts/komika.otf";
 
 export class Preload {
   static async load() {
     const assets = [
-      { alias: "bg", src: bg },
       { alias: "logo", src: logo },
       { alias: "rectangle", src: rectangle },
       { alias: "rectangleTryNow", src: rectangleTryNow },
       { alias: "lightTop", src: lightTop },
       { alias: "lightBottom", src: lightBottom },
-      { alias: "button", src: button },
       { alias: "buttonOff", src: buttonOff },
       { alias: "button1", src: button1 },
       { alias: "lightTryNowTop", src: lightTryNowTop },
       { alias: "lightTryNowBottom", src: lightTryNowBottom },
-      { alias: "cash", src: cash },
-      { alias: "texture", src: texture },
-      { alias: "divides", src: divides },
+      { alias: "divideGPT", src: divideGPT },
       { alias: "rectangleBlurTop", src: rectangleBlurTop },
       { alias: "rectangleBlurBottom", src: rectangleBlurBottom },
       { alias: "elem1", src: elem1 },
@@ -82,15 +82,19 @@ export class Preload {
       { alias: "elemWin", src: elemWin },
       { alias: "elemWin2", src: elemWin2 },
       { alias: "banknote", src: banknote },
-      { alias: "banknoteCash", src: banknoteCash },
       { alias: "particlesBottom", src: particlesBottom },
       { alias: "particlesCenter", src: particlesCenter },
+      { alias: "particles", src: particles },
       { alias: "boom", src: boom },
       { alias: "blur", src: blur },
       { alias: "popupRectangle", src: popupRectangle },
       { alias: "popupButton", src: popupButton },
       { alias: "popupCTAButton", src: popupCTAButton },
       { alias: "popupBoom", src: popupBoom },
+      { alias: "stars", src: stars },
+      { alias: "banknoteX", src: banknoteX },
+      { alias: "character", src: character },
+      { alias: "bg1", src: bg1 },
       { alias: "komika", src: komika },
     ];
 

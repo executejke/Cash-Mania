@@ -9,27 +9,31 @@ import {
 import anime from "animejs";
 
 export class Button {
-  constructor() {}
+  constructor(viewport, localization) {
+    this.viewport = viewport;
+    this.localization = localization;
+    this.createButton();
+    return this.container;
+  }
 
-  createButton(worldWidth) {
-    const container = new Container();
+  createButton() {
+    this.container = new Container();
+    let scale;
 
     const offsetY = 523;
 
     const buttonOffTexture = Texture.from("buttonOff");
 
-    const sprite = Sprite.from("button1");
-    sprite.anchor.set(0.5);
-    sprite.x = worldWidth / 2;
-    sprite.y = offsetY + 70;
-    sprite.width = 106;
-    sprite.height = 106;
+    this.sprite = Sprite.from("button1");
+    this.sprite.anchor.set(0.5);
+    this.sprite.x = this.viewport.worldWidth / 2;
+    this.sprite.y = offsetY + 180;
+    this.sprite.width = 106;
+    this.sprite.height = 106;
+    scale = this.sprite.scale;
 
-    const initialScale = { x: sprite.scale.x, y: sprite.scale.y };
-    const hoverScale = { x: initialScale.x * 1.1, y: initialScale.y * 1.1 };
-
-    const text = new Text({
-      text: "Играть",
+    this.text = new Text({
+      text: this.localization.button,
       style: {
         fontFamily: "komika",
         fontSize: 22,
@@ -41,13 +45,46 @@ export class Button {
         padding: 5,
       },
     });
-    text.anchor.set(0.5);
-    text.x = sprite.x + text.style.padding + 4;
-    text.y = sprite.y + 5;
-    text.zIndex = 2;
+    this.text.anchor.set(0.5);
+    this.text.x = this.sprite.x + this.text.style.padding + 4;
+    this.text.y = this.sprite.y + 5;
+    this.text.zIndex = 2;
 
+    if (this.text.width >= this.sprite.width) {
+      scale = this.text.width / this.sprite.width;
+      this.sprite.scale.set(scale);
+    }
+
+    const initialScale = { x: this.sprite.scale.x, y: this.sprite.scale.y };
+    const hoverScale = { x: initialScale.x * 1.1, y: initialScale.y * 1.1 };
+
+    this.createGraphics();
+
+    this.container.interactive = true;
+    this.container.cursor = "pointer";
+
+    this.container.on("pointerover", () =>
+      this.onHover(this.sprite, hoverScale)
+    );
+    this.container.on("pointerout", () =>
+      this.onOut(this.sprite, initialScale)
+    );
+    this.container.on("pointerdown", () =>
+      this.onClick(this.sprite, initialScale, buttonOffTexture, this.text)
+    );
+
+    this.container.zIndex = 6;
+
+    if (this.text.width >= this.sprite.width) {
+      const scale = this.text.width / this.sprite.width;
+      this.sprite.scale.set(scale);
+    }
+    console.log(this.sprite.width);
+  }
+
+  createGraphics() {
     const blur = new Graphics();
-    blur.circle(sprite.x, sprite.y, sprite.width / 2 + 5);
+    blur.circle(this.sprite.x, this.sprite.y, this.sprite.width / 2 + 5);
     blur.filters = [
       new BlurFilter({
         strength: 6,
@@ -59,24 +96,10 @@ export class Button {
     blur.fill(0xffffff);
 
     const outline = new Graphics();
-    outline.circle(sprite.x, sprite.y, sprite.width / 2 + 3);
+    outline.circle(this.sprite.x, this.sprite.y, this.sprite.width / 2 + 3);
     outline.fill(0xffffff);
 
-    container.addChild(outline, blur, sprite, text);
-
-    container.interactive = true;
-    container.cursor = "pointer";
-
-    container.on("pointerover", () => this.onHover(sprite, hoverScale));
-    container.on("pointerout", () => this.onOut(sprite, initialScale));
-    container.on("pointerdown", () =>
-      this.onClick(sprite, initialScale, buttonOffTexture, text)
-    );
-
-    container.zIndex = 6;
-
-    this.button = container;
-    return container;
+    this.container.addChild(outline, blur, this.sprite, this.text);
   }
 
   onHover(sprite, hoverScale) {
@@ -105,6 +128,7 @@ export class Button {
     newSprite.x = sprite.x;
     newSprite.y = sprite.y;
     newSprite.alpha = 0;
+    newSprite.scale.set(sprite.scale.x + 0.1, sprite.scale.y + 0.1);
 
     sprite.parent.addChild(newSprite);
 
@@ -130,7 +154,6 @@ export class Button {
           complete: () => {
             sprite.texture = buttonOffTexture;
             sprite.alpha = 1;
-            console.log(newSprite.scale, sprite.scale);
           },
         });
       },

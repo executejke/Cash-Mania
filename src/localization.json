@@ -1,0 +1,16 @@
+{
+  "button": "Jogar",
+  "marque": "Tente sua sorte em um novo jogo HYIP! Ganhos de até 2000X, RTP 98,9%! Clique em 'Jogar' e experimente!",
+  "bottomRect": "Experimente agora!",
+  "banknoteNumber": "100",
+  "banknoteText": "free spins",
+  "banknoteMultiplier": "x",
+  "banknoteMultiplierValue": "400",
+  "popupFirstCongratulation": "Parabéns!",
+  "popupFirstFreeSpins": "Você ganhou 100 freespins Compre-o antes que ele pegue fogo!",
+  "popupFirstButton": "Continuar",
+  "popupSecondWin": "Você ganhou um bônus de!",
+  "popupSecondFreeSpinsPlusBonus": "R$4.000 + 100 giros grátis!",
+  "popupSecondTake": "Compre-o antes que ele pegue fogo! ",
+  "popupSecondButton": "receber o bônus"
+}

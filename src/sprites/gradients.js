@@ -1,8 +1,7 @@
 import { Container, Sprite, BlurFilter } from "pixi.js";
 
 export function createGradients(worldWidth, worldHeight) {
-  //   const offsetY = 500;
-  let offsetY = 165;
+  let offsetY = 245;
 
   const blurFilter = new BlurFilter({
     kernelSize: 15,
@@ -17,8 +16,9 @@ export function createGradients(worldWidth, worldHeight) {
       sprite.x = worldWidth / 2;
       sprite.anchor.set(0.5, 0);
       sprite.filters = blurFilter;
+      sprite.alpha = 0.6;
       container.addChild(sprite);
-      offsetY = 445;
+      offsetY = 540;
     }
   );
   container.zIndex = 3;

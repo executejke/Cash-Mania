@@ -1,45 +1,95 @@
-import { Viewport as vp } from "pixi-viewport";
-import { Sprites } from "./sprites";
+import { Viewport as PixiViewport } from "pixi-viewport";
 import { Game } from "./game";
-import { Banknote } from "./banknote";
+import { Marquee } from "./marquee";
+import { createLogoSprite } from "../sprites/logo";
+import { Sprite } from "pixi.js";
+import { createDivides } from "../sprites/divides";
+import { createGradients } from "../sprites/gradients";
+import { createRectangleTryNow } from "../sprites/rectangle";
 
-export class Viewport {
-  constructor(app, width, height, worldWidth, worldHeight, events) {
+export class CustomViewport {
+  constructor(
+    app,
+    width,
+    height,
+    worldWidth,
+    worldHeight,
+    events,
+    localization
+  ) {
     this.app = app;
     this.width = width;
     this.height = height;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
+    this.localization = localization;
     this.events = events;
-    this.init();
-    this.resize();
+
+    this.initializeViewport();
+    this.handleResize();
+
+    window.addEventListener("resize", this.onResize.bind(this));
   }
-  init() {
-    this.viewport = new vp({
+
+  initializeViewport() {
+    this.viewport = new PixiViewport({
       screenWidth: this.width,
       screenHeight: this.height,
       worldWidth: this.worldWidth,
       worldHeight: this.worldHeight,
       events: this.events,
     });
+
     this.app.stage.addChild(this.viewport);
-    const sprites = new Sprites(
-      this.viewport,
-      this.app.screen.width,
-      this.app.screen.height
-    );
-    const game = new Game(this.viewport);
+    this.viewport.zIndex = 1;
+
+    this.addSpritesToViewport();
+
+    this.background = Sprite.from("bg1");
+    this.background.zIndex = 4;
+    this.viewport.addChild(this.background);
   }
 
-  resize() {
-    this.viewport.fit();
-    const coverScale = this.viewport.findCover(
+  addSpritesToViewport() {
+    this.viewport.addChild(createLogoSprite(this.viewport.worldWidth));
+    this.viewport.addChild(createDivides(this.viewport.worldWidth));
+    this.viewport.addChild(createGradients(this.viewport.worldWidth));
+    this.viewport.addChild(
+      createRectangleTryNow(this.viewport.worldWidth, this.localization)
+    );
+
+    this.gameInstance = new Game(this.viewport, this.localization);
+    this.marqueeInstance = new Marquee(
+      this.viewport,
+      this.app,
+      this.localization
+    );
+  }
+
+  handleResize() {
+    const scaleX = window.innerWidth / this.background.width;
+    const scaleY = window.innerHeight / this.background.height;
+    const scale =
+      window.innerWidth >= this.background.width ||
+      window.innerHeight >= this.background.height
+        ? Math.min(scaleX, scaleY)
+        : Math.max(scaleX, scaleY);
+
+    this.viewport.setZoom(scale);
+    this.viewport.moveCenter(
+      this.background.width / 2,
+      this.background.height / 2
+    );
+  }
+
+  onResize() {
+    this.app.renderer.resize(window.innerWidth, window.innerHeight);
+    this.viewport.resize(
+      window.innerWidth,
+      window.innerHeight,
       this.viewport.worldWidth,
       this.viewport.worldHeight
     );
-    this.viewport.moveCenter(
-      this.viewport.worldWidth / 2,
-      this.viewport.worldHeight / 2
-    );
+    this.handleResize();
   }
 }

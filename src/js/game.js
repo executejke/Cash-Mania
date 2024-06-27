@@ -1,23 +1,24 @@
 import { Sprite, Container } from "pixi.js";
 import { Button } from "./button";
-import anime from "animejs";
 import { Banknote } from "./banknote";
-import { createBlur } from "../sprites/blur";
 import { Popup } from "./popup";
-import { EventEmitter } from "eventemitter3";
 import { PopupCTA } from "./popupCTA";
+import { EventEmitter } from "eventemitter3";
+import anime from "animejs";
 
 export class Game extends EventEmitter {
-  constructor(viewport) {
-    super(); // Вызов конструктора EventEmitter
+  constructor(viewport, localization) {
+    super();
     this.viewport = viewport;
-    this.button = new Button().createButton(viewport.worldWidth);
-    this.rowCount = 3; // Количество элементов в ряду
-    this.startX = 65; // Начальный отступ по X для первого элемента
-    this.offsetsX = [0, 85, 185]; // Отступы для каждого элемента в ряду
-    this.offsetY = 188; // Начальный отступ по Y
-    this.rowHeight = 120; // Высота каждого ряда
+    this.localization = localization;
+    this.button = new Button(viewport, this.localization);
+    this.rowCount = 3;
+    this.offsetsX = [0, 121, 243];
+    this.offsetY = 250;
+    this.rowHeight = 145;
     this.container = new Container();
+    this.container.zIndex = 2;
+    this.startX = 400 - this.offsetsX[0];
     this.elements = [
       "elem1",
       "elem2",
@@ -29,85 +30,31 @@ export class Game extends EventEmitter {
       "elem8",
       "elem9",
     ];
+    this.hiddenElements = ["elemWin", "elemWin2"];
     this.hiddenSprites = [];
     this.sprites = [];
-    this.positions = [
-      { x: 107.5, y: 188 },
-      { x: 200, y: 188 },
-      { x: 292, y: 188 },
-      { x: 107.5, y: 308 },
-      { x: 200, y: 308 },
-      { x: 293, y: 308 },
-      { x: 107.5, y: 428 },
-      { x: 200, y: 428 },
-      { x: 293, y: 428 },
-    ];
-    this.clickCount = 0; // Счетчик кликов
-    this.hiddenElements = ["elemWin", "elemWin2"];
+    this.positions = [];
+    this.clickCount = 0;
+    this.hideSpriteIndex = 6;
+
     this.viewport.addChild(this.createElements());
     this.viewport.addChild(this.button);
     this.buttonHandler();
 
-    this.firstAnimation = {
-      first: [
-        { sprite: this.sprites[3], x: 107.5, y: 188 },
-        { sprite: this.sprites[0], x: 107.5, y: 428 },
-      ],
-      second: [
-        { sprite: this.sprites[2], x: 293, y: 428 },
-        { sprite: this.sprites[5], x: 292, y: 188 },
-        { sprite: this.sprites[8], x: 293, y: 308 },
-      ],
-      third: [
-        { sprite: this.sprites[1], x: 200, y: 308 },
-        { sprite: this.sprites[7], x: 200, y: 188 },
-        { sprite: this.sprites[4], x: 200, y: 428 },
-      ],
-    };
+    this.setupEventHandlers();
+  }
 
-    this.secondAnimation = {
-      first: [
-        { sprite: this.sprites[4], x: 150, y: 250 },
-        { sprite: this.sprites[1], x: 150, y: 450 },
-      ],
-      second: [
-        { sprite: this.sprites[3], x: 350, y: 450 },
-        { sprite: this.sprites[6], x: 350, y: 250 },
-        { sprite: this.sprites[7], x: 350, y: 350 },
-      ],
-      third: [
-        { sprite: this.sprites[0], x: 250, y: 350 },
-        { sprite: this.sprites[2], x: 250, y: 250 },
-        { sprite: this.sprites[5], x: 250, y: 450 },
-      ],
-    };
-
-    this.hideSpriteIndex = 6;
-
-    // Подписка на событие замены элементов
+  setupEventHandlers() {
     this.on("replaceElements", (newElements) =>
       this.replaceElements(newElements)
     );
-
-    // Подписка на событие удаления спрайтов Banknote
-    this.on("removeBanknote", () => {
-      if (this.banknote) {
-        this.banknote.removeBanknote();
-      }
-    });
-
-    // Подписка на событие запуска второй анимации
-    this.on("startSecondAnimation", () => {
-      this.runSecondAnimationSequence();
-    });
-
-    // Подписка на событие анимации появления элементов
+    this.on("removeBanknote", () => this.banknote?.removeBanknote());
+    this.on("startSecondAnimation", () => this.runSecondAnimationSequence());
     this.on("animateNewElements", (newElements) => {
       this.animateNewElements(newElements).then(() => {
         this.emit("startSecondAnimation");
       });
     });
-
     this.on("changeHideSpriteIndex", (newIndex) => {
       this.hideSpriteIndex = newIndex;
     });
@@ -116,15 +63,17 @@ export class Game extends EventEmitter {
   createElements(elements = this.elements) {
     this.hiddenSprites = [];
     this.sprites = [];
+
     elements.forEach((element, index) => {
       const sprite = Sprite.from(element);
       sprite.anchor.set(0.5, 0);
       sprite.zIndex = 1;
+      sprite.scale.set(1.2);
 
       const row = Math.floor(index / this.rowCount);
       const col = index % this.rowCount;
 
-      sprite.x = this.startX + this.offsetsX[col] + sprite.width / 2;
+      sprite.x = this.startX + this.offsetsX[col];
       sprite.y = this.offsetY + row * this.rowHeight;
 
       this.container.addChild(sprite);
@@ -136,49 +85,50 @@ export class Game extends EventEmitter {
         hiddenSprite.anchor.set(0.5, 0);
         hiddenSprite.x = sprite.x;
         hiddenSprite.y = sprite.y;
+        hiddenSprite.scale = sprite.scale;
         hiddenSprite.zIndex = 0;
         hiddenSprite.alpha = 0;
 
         this.hiddenSprites.push(hiddenSprite);
-
         this.container.addChild(hiddenSprite);
       }
     });
+
     return this.container;
   }
 
   updateAnimations() {
     this.firstAnimation = {
       first: [
-        { sprite: this.sprites[3], x: 107.5, y: 188 },
-        { sprite: this.sprites[0], x: 107.5, y: 428 },
+        { sprite: this.sprites[3], x: 400, y: 250 },
+        { sprite: this.sprites[0], x: 400, y: 540 },
       ],
       second: [
-        { sprite: this.sprites[2], x: 293, y: 428 },
-        { sprite: this.sprites[5], x: 292, y: 188 },
-        { sprite: this.sprites[8], x: 293, y: 308 },
+        { sprite: this.sprites[2], x: 643, y: 540 },
+        { sprite: this.sprites[5], x: 643, y: 250 },
+        { sprite: this.sprites[8], x: 643, y: 395 },
       ],
       third: [
-        { sprite: this.sprites[1], x: 200, y: 308 },
-        { sprite: this.sprites[7], x: 200, y: 188 },
-        { sprite: this.sprites[4], x: 200, y: 428 },
+        { sprite: this.sprites[1], x: 521, y: 395 },
+        { sprite: this.sprites[7], x: 521, y: 250 },
+        { sprite: this.sprites[4], x: 521, y: 540 },
       ],
     };
 
     this.secondAnimation = {
       first: [
-        { sprite: this.sprites[3], x: 107.5, y: 428 },
-        { sprite: this.sprites[6], x: 107.5, y: 188 },
+        { sprite: this.sprites[3], x: 400, y: 540 },
+        { sprite: this.sprites[6], x: 400, y: 250 },
       ],
       second: [
-        { sprite: this.sprites[1], x: 200, y: 428 },
-        { sprite: this.sprites[4], x: 200, y: 188 },
-        { sprite: this.sprites[7], x: 200, y: 308 },
+        { sprite: this.sprites[1], x: 521, y: 540 },
+        { sprite: this.sprites[4], x: 521, y: 250 },
+        { sprite: this.sprites[7], x: 521, y: 395 },
       ],
       third: [
-        { sprite: this.sprites[2], x: 293, y: 308 },
-        { sprite: this.sprites[5], x: 293, y: 428 },
-        { sprite: this.sprites[8], x: 293, y: 188 },
+        { sprite: this.sprites[2], x: 643, y: 395 },
+        { sprite: this.sprites[5], x: 643, y: 540 },
+        { sprite: this.sprites[8], x: 643, y: 250 },
       ],
     };
   }
@@ -199,7 +149,12 @@ export class Game extends EventEmitter {
       .then(() => this.animateSprites(this.firstAnimation.second))
       .then(() => this.animateSprites(this.firstAnimation.third))
       .then(() => {
-        this.banknote = new Banknote(this.viewport, "banknote");
+        this.banknote = new Banknote(
+          this.viewport,
+          "banknote",
+          true,
+          this.localization
+        );
         return anime({
           targets: this.banknote.container,
           alpha: 1,
@@ -208,12 +163,12 @@ export class Game extends EventEmitter {
         }).finished;
       })
       .then(() => {
-        // Анимация появления попапа
         this.popup = new Popup(
           this.viewport,
           this.sprites,
           this.container,
-          this
+          this,
+          this.localization
         );
         this.popup.onPopupButtonClicked = () => {
           this.emit("animateNewElements", this.popup.newElements);
@@ -233,7 +188,12 @@ export class Game extends EventEmitter {
       .then(() => this.animateSprites(this.secondAnimation.second))
       .then(() => this.animateSprites(this.secondAnimation.third))
       .then(() => {
-        this.banknote = new Banknote(this.viewport, "banknoteCash");
+        this.banknote = new Banknote(
+          this.viewport,
+          "banknoteX",
+          false,
+          this.localization
+        );
         return anime({
           targets: this.banknote.container,
           alpha: 1,
@@ -242,9 +202,7 @@ export class Game extends EventEmitter {
         }).finished;
       })
       .then(() => {
-        // Анимация появления попапа
-        this.popupCTA = new PopupCTA(this.viewport);
-
+        this.popupCTA = new PopupCTA(this.viewport, this.localization);
         return anime({
           targets: this.popupCTA.container,
           alpha: 1,
@@ -257,8 +215,6 @@ export class Game extends EventEmitter {
   animateSprites(animations) {
     return new Promise((resolve) => {
       let isAnimated = false;
-      const hiddenSprites = this.hiddenSprites;
-      const sprites = this.sprites;
       let completedCount = 0;
 
       animations.forEach((animation) => {
@@ -266,19 +222,19 @@ export class Game extends EventEmitter {
           targets: animation.sprite,
           x: animation.x,
           y: animation.y,
-          duration: 800, // Длительность анимации в миллисекундах
-          easing: "easeInBack", // Временная функция
+          duration: 800,
+          easing: "easeInBack",
           update: (anim) => {
             if (anim.currentTime >= 400 && !isAnimated) {
               isAnimated = true;
               anime({
-                targets: hiddenSprites[0],
+                targets: this.hiddenSprites[0],
                 alpha: 1,
-                duration: 200, // Длительность анимации альфы
-                easing: "linear", // Временная функция для анимации альфы
+                duration: 200,
+                easing: "linear",
               });
               anime({
-                targets: sprites[this.hideSpriteIndex],
+                targets: this.sprites[this.hideSpriteIndex],
                 alpha: 0,
                 duration: 400,
                 easing: "easeInBack",
@@ -300,14 +256,13 @@ export class Game extends EventEmitter {
     return new Promise((resolve) => {
       this.replaceElements(newElements);
 
-      // Анимация появления новых элементов
       this.sprites.forEach((sprite, index) => {
-        const targetX =
-          this.startX + this.offsetsX[index % this.rowCount] + sprite.width / 2;
-        const targetY =
-          this.offsetY + Math.floor(index / this.rowCount) * this.rowHeight;
+        const row = Math.floor(index / this.rowCount);
+        const col = index % this.rowCount;
 
-        // Установка начальных позиций
+        const targetX = this.startX + this.offsetsX[col];
+        const targetY = this.offsetY + row * this.rowHeight;
+
         sprite.alpha = 0;
         sprite.x =
           targetX > this.viewport.worldWidth / 2
@@ -318,7 +273,6 @@ export class Game extends EventEmitter {
             ? targetY + 100
             : targetY - 100;
 
-        // Анимация
         anime({
           targets: sprite,
           alpha: 1,
@@ -327,7 +281,9 @@ export class Game extends EventEmitter {
           duration: 1000,
           easing: index % 2 === 0 ? "easeOutExpo" : "easeInBack",
           complete: () => {
-            resolve();
+            if (index === this.sprites.length - 1) {
+              resolve();
+            }
           },
         });
       });
@@ -335,19 +291,17 @@ export class Game extends EventEmitter {
   }
 
   replaceElements(newElements) {
-    // Удаление старых элементов
     this.sprites.forEach((sprite) => {
       this.container.removeChild(sprite);
     });
+
     const hiddenSprite = this.hiddenSprites[0];
     this.container.removeChild(hiddenSprite);
+
     this.hiddenSprites = [];
     this.sprites = [];
 
-    // Создание новых элементов
     this.createElements(newElements);
-    this.updateAnimations(); // Обновление анимационных объектов
+    this.updateAnimations();
   }
-
-  animateElements() {}
 }
